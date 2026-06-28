@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>~/portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #39ff6e;
+    --green-dim: #1a7a35;
+    --green-glow: #39ff6e44;
+    --amber: #ffb347;
+    --bg: #0a0f0a;
+    --bg2: #0f160f;
+    --bg3: #141e14;
+    --border: #1f2e1f;
+    --text: #c8e6c8;
+    --text-dim: #6a8f6a;
+    --red: #ff5f5f;
+    --blue: #5fc8ff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* subtle scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(0,0,0,0.08) 3px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 2rem 5rem;
+  }
+
+  /* HEADER */
+  .header {
+    margin-bottom: 4rem;
+    position: relative;
+  }
+
+  .prompt-line {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .prompt-line span { color: var(--green); }
+
+  .name-block {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .cursor-bar {
+    width: 14px;
+    height: 52px;
+    background: var(--green);
+    flex-shrink: 0;
+    margin-top: 4px;
+    animation: blink 1.1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.4rem, 6vw, 3.8rem);
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--green);
+    letter-spacing: -0.02em;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--amber);
+  }
+
+  .tagline {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-top: 1.2rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .tagline::before {
+    content: '';
+    display: inline-block;
+    width: 2rem;
+    height: 1px;
+    background: var(--green-dim);
+  }
+
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 1.8rem;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .status-bar .sep { color: var(--border); }
+
+  /* SECTION HEADER */
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .section-head .cmd { color: var(--green); }
+  .section-head .count {
+    margin-left: auto;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 0.1rem 0.5rem;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+  }
+
+  /* PROJECT GRID */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 1.5px;
+    margin-bottom: 0.75rem;
+  }
+
+  .project-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    position: relative;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    overflow: hidden;
+    text-decoration: none;
+    display: block;
+    color: inherit;
+  }
+
+  .project-card:hover {
+    border-color: var(--green-dim);
+    background: var(--bg3);
+  }
+
+  .project-card:hover .card-corner { opacity: 1; }
+  .project-card:hover .proj-title { color: var(--green); }
+
+  /* corner accent on hover */
+  .card-corner {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 24px;
+    height: 24px;
+    border-top: 2px solid var(--green);
+    border-left: 2px solid var(--green);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .card-corner.br {
+    top: auto; left: auto;
+    bottom: -1px; right: -1px;
+    border-top: none; border-left: none;
+    border-bottom: 2px solid var(--green);
+    border-right: 2px solid var(--green);
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+  }
+
+  .tag {
+    padding: 0.15rem 0.5rem;
+    border: 1px solid;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tag.code   { border-color: #1a5e35; color: var(--green); background: #0d1f14; }
+  .tag.doc    { border-color: #3a3218; color: var(--amber); background: #1a160a; }
+  .tag.slides { border-color: #1a3556; color: var(--blue);  background: #0d1620; }
+
+  .card-date {
+    margin-left: auto;
+    color: var(--text-dim);
+    font-size: 0.65rem;
+  }
+
+  .proj-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    transition: color 0.15s;
+    letter-spacing: -0.01em;
+  }
+
+  .proj-desc {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  .proj-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .stack-pill {
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 0.1rem 0.45rem;
+    letter-spacing: 0.05em;
+    background: var(--bg);
+  }
+
+  .proj-link {
+    position: absolute;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    letter-spacing: 0.05em;
+    transition: color 0.15s;
+  }
+
+  .project-card:hover .proj-link { color: var(--green); }
+
+  .proj-link::after { content: ' →'; }
+
+  /* FEATURED card */
+  .project-card.featured {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .project-card.featured .proj-title { font-size: 1.5rem; }
+
+  .featured-badge {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border: 1px solid var(--green-dim);
+    color: var(--green);
+    background: #0d1f14;
+  }
+
+  /* ABOUT */
+  .about-section {
+    margin-top: 3.5rem;
+  }
+
+  .about-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .about-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 1.25rem 1.5rem;
+  }
+
+  .about-label {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .about-value {
+    font-size: 0.8rem;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .about-value a {
+    color: var(--green);
+    text-decoration: none;
+    border-bottom: 1px solid var(--green-dim);
+  }
+
+  /* FOOTER */
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+
+  footer .exit { color: var(--red); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .container > * {
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .container > *:nth-child(1) { animation-delay: 0.05s; }
+  .container > *:nth-child(2) { animation-delay: 0.12s; }
+  .container > *:nth-child(3) { animation-delay: 0.2s; }
+  .container > *:nth-child(4) { animation-delay: 0.28s; }
+  .container > *:nth-child(5) { animation-delay: 0.36s; }
+
+  .project-card {
+    animation: fadeUp 0.45s ease both;
+  }
+  .projects-grid .project-card:nth-child(1) { animation-delay: 0.2s; }
+  .projects-grid .project-card:nth-child(2) { animation-delay: 0.28s; }
+  .projects-grid .project-card:nth-child(3) { animation-delay: 0.34s; }
+  .projects-grid .project-card:nth-child(4) { animation-delay: 0.4s;  }
+  .projects-grid .project-card:nth-child(5) { animation-delay: 0.46s; }
+  .projects-grid .project-card:nth-child(6) { animation-delay: 0.52s; }
+
+  @media (max-width: 600px) {
+    .projects-grid { grid-template-columns: 1fr; }
+    .project-card.featured { grid-template-columns: 1fr; }
+    .about-body { grid-template-columns: 1fr; }
+    h1 { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="prompt-line"><span>rfraja@portfolio</span>:~$ ls -la ./projects</div>
+    <div class="name-block">
+      <div class="cursor-bar"></div>
+      <h1><em>Rislyn Ferona</em><br>Raja.</h1>
+    </div>
+    <p class="tagline">data analyst · researcher · problem solver</p>
+    <div class="status-bar">
+      <div class="status-dot"></div>
+      <span>available for work</span>
+      <span class="sep">|</span>
+      <span>based in — stamford, ct; boston, ma</span>
+      <span class="sep">|</span>
+      <span>last updated: 2026</span>
+    </div>
+  </header>
+
+  <!-- PROJECTS -->
+  <section>
+    <div class="section-head">
+      <span class="cmd">$</span>
+      <span>find ./projects -type f | sort</span>
+      <span class="count">6 entries</span>
+    </div>
+
+    <div class="projects-grid">
+
+      <!-- FEATURED PROJECT -->
+      <a class="project-card featured" href="./files/Benchmarking Imbalanced Classifiers on HR Data/Benchmarking Imbalanced Classifiers on HR Data.pdf" target="_blank">
+        <div class="card-corner"></div>
+        <div class="card-corner br"></div>
+        <div class="featured-badge">★ featured</div>
+        <div>
+          <div class="card-meta">
+            <span class="tag doc">paper</span>
+            <span class="tag code">python</span>
+            <span class="card-date">2025</span>
+          </div>
+          <div class="proj-title">Benchmarking Imbalanced Classifiers on HR Data</div>
+          <p class="proj-desc">
+            In my final project completed for my Intro to Machine Learning class, I used
+            four different imbalanced classifiers (Random Forest, Graident Boosting, SVN, Balanced Bagging)
+            to analyze a set of HR Data on job change of data scientists. 
+          </p>
+          <div class="proj-stack">
+            <span class="stack-pill">Python</span>
+            <span class="stack-pill">numpy</span>
+            <span class="stack-pill">pandas</span>
+            <span class="stack-pill">matplotlib</span>
+            <span class="stack-pill">research</span>
+            <span class="stack-pill">writing</span>
+          </div>
+        </div>
+        <div>
+          <p class="proj-desc" style="margin-top: 1.5rem;">
+            Through a multistage process of thorough data cleaning and preprocessing as well as model testing,
+            I was able to select the best model of the four that were initially chosen. Balanced Bagging stood out
+            for this dataset in particular because of its learning curves for accuracy and F1 score. It did not show
+            any major increases or decreases as the number of training samples increased. 
+          </p>
+          <p class="proj-link">read paper</p>
+        </div>
+      </a>
+
+      <!-- PROJECT 2 -->
+      <a class="project-card" href="https://github.com/rislynfraja/multimodal-stress-wellness-prediction" target="_blank">
+        <div class="card-corner"></div>
+        <div class="card-corner br"></div>
+        <div class="card-meta">
+          <span class="tag code">python</span>
+          <span class="card-date">2026</span>
+        </div>
+        <div class="proj-title">Multimodal Stress & Wellness Prediction</div>
+        <p class="proj-desc">
+          I trained a Random Forest Classifier model on a set of data using leave-one-out cross-validation (LOO-CV)
+          to create personalized wellness suggestions for each person. 
+        </p>
+        <div class="proj-stack">
+          <span class="stack-pill">Python</span>
+          <span class="stack-pill">pandas</span>
+          <span class="stack-pill">sklearn</span>
+          <span class="stack-pill">numpy</span>
+        </div>
+        <p class="proj-link">view project</p>
+      </a>
+
+      <!-- PROJECT 3 -->
+      <a class="project-card" href="https://github.com/rislynfraja/portfolio/tree/main/files/Trends%2C%20Fundamentals%2C%20and%20Risk" target="_blank">
+        <div class="card-corner"></div>
+        <div class="card-corner br"></div>
+        <div class="card-meta">
+          <span class="tag slides">slides</span>
+          <span class="tag code">python</span>
+          <span class="card-date">2025</span>
+        </div>
+        <div class="proj-title">Trends, Fundamentals, & Risk</div>
+        <p class="proj-desc">
+          Through a collaborative group assignment, my team and I created 3 presentations over the span of the semester.
+          1. Stock Price Trends & Volatility Analysis, 2. Fundamental Analysis - Earnings & Ratios, 3. Portfolio Optimization & Risk Assessment.
+          For each project, we needed to import selected data to our database and write efficient SQL Queries for financial analysis. 
+        </p>
+        <div class="proj-stack">
+          <span class="stack-pill">python</span>
+          <span class="stack-pill">sql</span>
+          <span class="stack-pill">stocks</span>
+          <span class="stack-pill">finance</span>
+          <span class="stack-pill">research</span>
+          <span class="stack-pill">writing</span>
+        </div>
+        <p class="proj-link">view slides</p>
+      </a>
+
+      <!-- PROJECT 4 -->
+      <a class="project-card" href="https://github.com/rislynfraja/community-detection-friend-recommendation" target="_blank">
+        <div class="card-corner"></div>
+        <div class="card-corner br"></div>
+        <div class="card-meta">
+          <span class="tag code">python</span>
+          <span class="card-date">2023</span>
+        </div>
+        <div class="proj-title">Community Detection & Friend Recommendation</div>
+        <p class="proj-desc">
+          In an Honors Project for my Algorithms and Complexity Class, we implemented community detection and friend
+          recommendation algorithms while learning about data structures such as graphs. 
+        </p>
+        <div class="proj-stack">
+          <span class="stack-pill">Python</span>
+          <span class="stack-pill">matplotlib</span>
+          <span class="stack-pill">numpy</span>
+        </div>
+        <p class="proj-link">view project</p>
+      </a>
+
+      <!-- PROJECT 5 -->
+      <a class="project-card" href="https://github.com/rislynfraja/horizon-surfer" target="_blank">
+        <div class="card-corner"></div>
+        <div class="card-corner br"></div>
+        <div class="card-meta">
+          <span class="tag code">Python</span>
+          <span class="card-date">2025</span>
+        </div>
+        <div class="proj-title">Horizon Surfer</div>
+        <p class="proj-desc">
+          Exploring video game development, I created a simple game
+          where the player plays as a bee who surfs the horizon, dodging obstacles. 
+        </p>
+        <div class="proj-stack">
+          <span class="stack-pill">Python</span>
+          <span class="stack-pill">design</span>
+          <span class="stack-pill">pygame</span>
+        </div>
+        <p class="proj-link">view project</p>
+      </a>
+
+      <!-- PROJECT 6 -->
+      <a class="project-card" href="https://github.com/rislynfraja/color-matching-memory-game" target="_blank">
+        <div class="card-corner"></div>
+        <div class="card-corner br"></div>
+        <div class="card-meta">
+          <span class="tag code">Python</span>
+          <span class="card-date">2023</span>
+        </div>
+        <div class="proj-title">Color Match Memory Game</div>
+        <p class="proj-desc">
+          As one of my first coding projects for my Data Structures and Object-Oriented Design class Honor's Project,
+          I created a simple card color matching memory game. 
+        </p>
+        <div class="proj-stack">
+          <span class="stack-pill">Python</span>
+          <span class="stack-pill">tkinter</span>
+        </div>
+        <p class="proj-link">view project</p>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about-section">
+    <div class="section-head">
+      <span class="cmd">$</span>
+      <span>cat ./about.txt</span>
+    </div>
+    <div class="about-body">
+      <div class="about-block">
+        <div class="about-label">// whoami</div>
+        <div class="about-value">
+          Hi! I'm Rislyn! I'm currently pursuing a Masters of Science in Business Analytics
+          at Boston University. During my undergrad at UConn, I graduated with a dual degree 
+          in Honors for Computer Science and Psychological Science. I'm very passionate about
+          working with data and learning new things!
+        </div>
+      </div>
+      <div class="about-block">
+        <div class="about-label">// contact</div>
+        <div class="about-value">
+          <a href="mailto:rislynraja@gmail.com">rislynraja@gmail.com</a><br>
+          <a href="https://github.com/rislynfraja">github.com/rislynfraja</a><br>
+          <a href="https://www.linkedin.com/in/rislynfraja/">linkedin.com/in/rislynfraja/</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>~/portfolio — built with html + css</span>
+    <span class="exit">^C to exit</span>
+  </footer>
+
+</div>
+</body>
+</html>
