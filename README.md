@@ -2,7 +2,7 @@
 
 My personal portfolio built with HTML and CSS showcasing my projects in data analysis, software development, and more.
  
-Live at: **[rislynfraja.github.io](https://rislynfraja.github.io)**
+Live at: **[rislynfraja.github.io](https://rislynfraja.github.io/portfolio/)**
  
 ---
  
